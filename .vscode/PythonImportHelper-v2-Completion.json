@@ -144,11 +144,11 @@
         "documentation": {}
     },
     {
-        "label": "Config",
-        "kind": 6,
+        "label": "SQLALCHEMY_DATABASE_URI",
+        "kind": 5,
         "importPath": "backend.app.config",
         "description": "backend.app.config",
-        "peekOfCode": "class Config:\n    SQLALCHEMY_DATABASE_URI = os.getenv(\"DATABASE_URL\")\n    SQLALCHEMY_TRACK_MODIFICATIONS = False",
+        "peekOfCode": "SQLALCHEMY_DATABASE_URI = os.getenv(\"DATABASE_URL\")",
         "detail": "backend.app.config",
         "documentation": {}
     },
