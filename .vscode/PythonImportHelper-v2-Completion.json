@@ -65,14 +65,6 @@
         "documentation": {}
     },
     {
-        "label": "load_dotenv",
-        "importPath": "dotenv",
-        "description": "dotenv",
-        "isExtraImport": true,
-        "detail": "dotenv",
-        "documentation": {}
-    },
-    {
         "label": "create_app",
         "importPath": "app",
         "description": "app",
@@ -184,7 +176,7 @@
         "kind": 5,
         "importPath": "backend.run",
         "description": "backend.run",
-        "peekOfCode": "app = create_app()\nif __name__ == \"__main__\":\n    # 2. Enable debug mode for a better dev experience\n    app.run(debug=True, port=5000)",
+        "peekOfCode": "app = create_app()\nif __name__ == \"__main__\":\n    app.run()",
         "detail": "backend.run",
         "documentation": {}
     },
