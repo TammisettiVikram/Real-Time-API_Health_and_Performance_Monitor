@@ -1,0 +1,210 @@
+[
+    {
+        "label": "request",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "Blueprint",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "jsonify",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "Blueprint",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "request",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "jsonify",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "SQLAlchemy",
+        "importPath": "flask_sqlalchemy",
+        "description": "flask_sqlalchemy",
+        "isExtraImport": true,
+        "detail": "flask_sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "create_app",
+        "importPath": "app",
+        "description": "app",
+        "isExtraImport": true,
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "time",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "time",
+        "description": "time",
+        "detail": "time",
+        "documentation": {}
+    },
+    {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
+        "documentation": {}
+    },
+    {
+        "label": "create_log",
+        "kind": 2,
+        "importPath": "backend.app.routes.logs",
+        "description": "backend.app.routes.logs",
+        "peekOfCode": "def create_log():\n    data = request.json\n    log = HealthLog(\n        service_id=data[\"service_id\"],\n        status_code=data.get(\"status_code\"),\n        response_time_ms=data.get(\"response_time_ms\"),\n        is_up=data[\"is_up\"]\n    )\n    db.session.add(log)\n    db.session.commit()",
+        "detail": "backend.app.routes.logs",
+        "documentation": {}
+    },
+    {
+        "label": "list_services",
+        "kind": 2,
+        "importPath": "backend.app.routes.services",
+        "description": "backend.app.routes.services",
+        "peekOfCode": "def list_services():\n    services = MonitoredService.query.all()\n    return jsonify([\n        {\n            \"id\": s.id,\n            \"name\": s.name,\n            \"url\": s.url,\n            \"is_active\": s.is_active\n        } for s in services\n    ])",
+        "detail": "backend.app.routes.services",
+        "documentation": {}
+    },
+    {
+        "label": "create_service",
+        "kind": 2,
+        "importPath": "backend.app.routes.services",
+        "description": "backend.app.routes.services",
+        "peekOfCode": "def create_service():\n    data = request.json\n    service = MonitoredService(\n        name=data[\"name\"],\n        url=data[\"url\"]\n    )\n    db.session.add(service)\n    db.session.commit()\n    return jsonify({\"message\": \"Service added\"}), 201",
+        "detail": "backend.app.routes.services",
+        "documentation": {}
+    },
+    {
+        "label": "services_bp",
+        "kind": 5,
+        "importPath": "backend.app.routes.services",
+        "description": "backend.app.routes.services",
+        "peekOfCode": "services_bp = Blueprint(\"services\", __name__)\n@services_bp.route(\"\", methods=[\"GET\"])\ndef list_services():\n    services = MonitoredService.query.all()\n    return jsonify([\n        {\n            \"id\": s.id,\n            \"name\": s.name,\n            \"url\": s.url,\n            \"is_active\": s.is_active",
+        "detail": "backend.app.routes.services",
+        "documentation": {}
+    },
+    {
+        "label": "Config",
+        "kind": 6,
+        "importPath": "backend.app.config",
+        "description": "backend.app.config",
+        "peekOfCode": "class Config:\n    SQLALCHEMY_DATABASE_URI = os.getenv(\"DATABASE_URL\")\n    SQLALCHEMY_TRACK_MODIFICATIONS = False",
+        "detail": "backend.app.config",
+        "documentation": {}
+    },
+    {
+        "label": "db",
+        "kind": 5,
+        "importPath": "backend.app.db",
+        "description": "backend.app.db",
+        "peekOfCode": "db = SQLAlchemy()",
+        "detail": "backend.app.db",
+        "documentation": {}
+    },
+    {
+        "label": "MonitoredService",
+        "kind": 6,
+        "importPath": "backend.app.models",
+        "description": "backend.app.models",
+        "peekOfCode": "class MonitoredService(db.Model):\n    __tablename__ = \"monitored_services\"\n    id = db.Column(db.Integer, primary_key=True)\n    name = db.Column(db.Text, nullable=False)\n    url = db.Column(db.Text, nullable=False, unique=True)\n    is_active = db.Column(db.Boolean, default=True)\n    created_at = db.Column(db.DateTime, server_default=db.func.now())\nclass HealthLog(db.Model):\n    __tablename__ = \"health_logs\"\n    id = db.Column(db.BigInteger, primary_key=True)",
+        "detail": "backend.app.models",
+        "documentation": {}
+    },
+    {
+        "label": "HealthLog",
+        "kind": 6,
+        "importPath": "backend.app.models",
+        "description": "backend.app.models",
+        "peekOfCode": "class HealthLog(db.Model):\n    __tablename__ = \"health_logs\"\n    id = db.Column(db.BigInteger, primary_key=True)\n    service_id = db.Column(\n        db.Integer,\n        db.ForeignKey(\"monitored_services.id\", ondelete=\"CASCADE\"),\n        nullable=False,\n    )\n    status_code = db.Column(db.Integer)\n    response_time_ms = db.Column(db.Integer)",
+        "detail": "backend.app.models",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "backend.run",
+        "description": "backend.run",
+        "peekOfCode": "app = create_app()\nif __name__ == \"__main__\":\n    app.run()",
+        "detail": "backend.run",
+        "documentation": {}
+    },
+    {
+        "label": "check_service",
+        "kind": 2,
+        "importPath": "monitoring.monitor",
+        "description": "monitoring.monitor",
+        "peekOfCode": "def check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {\n            \"service_id\": service[\"id\"],\n            \"status_code\": res.status_code,\n            \"response_time_ms\": latency,",
+        "detail": "monitoring.monitor",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "monitoring.monitor",
+        "description": "monitoring.monitor",
+        "peekOfCode": "def main():\n    services = requests.get(f\"{API_BASE}/services\").json()\n    for service in services:\n        if not service[\"is_active\"]:\n            continue\n        result = check_service(service)\n        requests.post(f\"{API_BASE}/logs\", json=result)\nif __name__ == \"__main__\":\n    main()",
+        "detail": "monitoring.monitor",
+        "documentation": {}
+    },
+    {
+        "label": "API_BASE",
+        "kind": 5,
+        "importPath": "monitoring.monitor",
+        "description": "monitoring.monitor",
+        "peekOfCode": "API_BASE = os.getenv(\"API_BASE_URL\")\nTIMEOUT = 10  # seconds\ndef check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {\n            \"service_id\": service[\"id\"],",
+        "detail": "monitoring.monitor",
+        "documentation": {}
+    },
+    {
+        "label": "TIMEOUT",
+        "kind": 5,
+        "importPath": "monitoring.monitor",
+        "description": "monitoring.monitor",
+        "peekOfCode": "TIMEOUT = 10  # seconds\ndef check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {\n            \"service_id\": service[\"id\"],\n            \"status_code\": res.status_code,",
+        "detail": "monitoring.monitor",
+        "documentation": {}
+    }
+]
