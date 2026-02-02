@@ -2,6 +2,7 @@ from httpx import request
 from flask import Blueprint, jsonify
 from ..db import db
 from ..models import HealthLog
+logs_bp = Blueprint('logs_bp', __name__)
 
 @logs_bp.route("", methods=["POST"])
 def create_log():

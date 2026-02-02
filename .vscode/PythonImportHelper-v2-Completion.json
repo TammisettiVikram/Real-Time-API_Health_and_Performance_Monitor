@@ -65,6 +65,14 @@
         "documentation": {}
     },
     {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
         "label": "create_app",
         "importPath": "app",
         "description": "app",
@@ -96,6 +104,15 @@
         "importPath": "backend.app.routes.logs",
         "description": "backend.app.routes.logs",
         "peekOfCode": "def create_log():\n    data = request.json\n    log = HealthLog(\n        service_id=data[\"service_id\"],\n        status_code=data.get(\"status_code\"),\n        response_time_ms=data.get(\"response_time_ms\"),\n        is_up=data[\"is_up\"]\n    )\n    db.session.add(log)\n    db.session.commit()",
+        "detail": "backend.app.routes.logs",
+        "documentation": {}
+    },
+    {
+        "label": "logs_bp",
+        "kind": 5,
+        "importPath": "backend.app.routes.logs",
+        "description": "backend.app.routes.logs",
+        "peekOfCode": "logs_bp = Blueprint('logs_bp', __name__)\n@logs_bp.route(\"\", methods=[\"POST\"])\ndef create_log():\n    data = request.json\n    log = HealthLog(\n        service_id=data[\"service_id\"],\n        status_code=data.get(\"status_code\"),\n        response_time_ms=data.get(\"response_time_ms\"),\n        is_up=data[\"is_up\"]\n    )",
         "detail": "backend.app.routes.logs",
         "documentation": {}
     },
@@ -167,7 +184,7 @@
         "kind": 5,
         "importPath": "backend.run",
         "description": "backend.run",
-        "peekOfCode": "app = create_app()\nif __name__ == \"__main__\":\n    app.run()",
+        "peekOfCode": "app = create_app()\nif __name__ == \"__main__\":\n    # 2. Enable debug mode for a better dev experience\n    app.run(debug=True, port=5000)",
         "detail": "backend.run",
         "documentation": {}
     },
@@ -185,7 +202,7 @@
         "kind": 2,
         "importPath": "monitoring.monitor",
         "description": "monitoring.monitor",
-        "peekOfCode": "def main():\n    services = requests.get(f\"{API_BASE}/services\").json()\n    for service in services:\n        if not service[\"is_active\"]:\n            continue\n        result = check_service(service)\n        requests.post(f\"{API_BASE}/logs\", json=result)\nif __name__ == \"__main__\":\n    main()",
+        "peekOfCode": "def main():\n    try:\n        services = requests.get(\n            f\"{API_BASE}/services\",\n            timeout=10\n        ).json()\n    except Exception as e:\n        print(\"Failed to fetch services:\", e)\n        return\n    for service in services:",
         "detail": "monitoring.monitor",
         "documentation": {}
     },
