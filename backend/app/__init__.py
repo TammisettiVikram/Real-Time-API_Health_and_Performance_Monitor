@@ -9,9 +9,12 @@ def create_app():
 
     CORS(app)
     db.init_app(app)
-    
+
+    # 👇 THIS IS THE KEY LINE
+    from . import models
+
     with app.app_context():
-        db.create_all()  # <-- fixed indentation
+        db.create_all()
 
     from .routes.services import services_bp
     from .routes.logs import logs_bp
