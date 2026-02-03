@@ -126,7 +126,7 @@ This mimics real production monitoring systems.
 
 ## 🔁 Monitoring Flow
 
-1. GitHub Actions runs every X minutes
+1. GitHub Actions runs every 10 minutes
 2. Monitoring script:
    - fetches active services
    - pings each service
@@ -163,7 +163,7 @@ Backend API:
 https://real-time-apihealthandperformancemonitor-production.up.railway.app
 
 Frontend Dashboard:
-(add your deployed frontend URL here)
+https://real-time-api-health-and-performanc.vercel.app
 
 ---
 
