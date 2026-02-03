@@ -1,56 +1,45 @@
 import { useState } from "react";
-import { api } from "../api";
 
-export default function AddServiceForm({ onAdded }) {
+export default function AddServiceForm({ onAdd }) {
     const [name, setName] = useState("");
     const [url, setUrl] = useState("");
-    const [loading, setLoading] = useState(false);
 
-    const submit = async (e) => {
+    function handleSubmit(e) {
         e.preventDefault();
-        setLoading(true);
+        if (!name || !url) return;
 
-        try {
-            await api.post("/services", { name, url });
-            setName("");
-            setUrl("");
-            onAdded(); // refresh services
-        } catch (err) {
-            alert("Failed to add service");
-        } finally {
-            setLoading(false);
-        }
-    };
+        onAdd({ name, url });
+        setName("");
+        setUrl("");
+    }
 
     return (
         <form
-            onSubmit={submit}
-            className="bg-gray-800 p-4 rounded space-y-3 text-white"
+            onSubmit={handleSubmit}
+            className="form-card reveal"
         >
-            <h2 className="font-semibold">Add New Service</h2>
+            <div className="form-header">
+                <h2>Add New Service</h2>
+                <p>Monitor any public health or status endpoint.</p>
+            </div>
 
-            <input
-                className="w-full p-2 rounded bg-gray-700"
-                placeholder="Service name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-            />
+            <div className="form-grid">
+                <input
+                    type="text"
+                    placeholder="Service name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                />
 
-            <input
-                className="w-full p-2 rounded bg-gray-700"
-                placeholder="https://example.com/health"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                required
-            />
+                <input
+                    type="url"
+                    placeholder="https://example.com/health"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                />
 
-            <button
-                className="bg-blue-600 px-4 py-2 rounded"
-                disabled={loading}
-            >
-                {loading ? "Adding..." : "Add Service"}
-            </button>
+                <button type="submit">Add Service</button>
+            </div>
         </form>
     );
 }

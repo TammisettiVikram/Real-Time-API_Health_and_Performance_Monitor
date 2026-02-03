@@ -1,70 +1,55 @@
 export default function ServiceCard({
   service,
-  summary,
-  onSelect,
-  onDelete,
+  stats,
   onToggleAlerts,
+  onDelete,
 }) {
-  const up = summary?.uptime_percent === 100;
+  const isUp = stats?.is_up ?? true;
 
   return (
-    <div
-      onClick={onSelect}
-      className="border rounded p-4 cursor-pointer hover:shadow text-white bg-gray-800"
-    >
-      <div className="flex items-start justify-between gap-3">
+    <div className="service-card reveal">
+      <div className="service-top">
         <div>
-          <h3 className="font-bold text-white">{service.name}</h3>
-          <p className={up ? "text-green-400" : "text-red-400"}>
-            {up ? "UP" : "DEGRADED"}
-          </p>
+          <h2 className="service-name">{service.name}</h2>
+          <p className="service-url">{service.url}</p>
         </div>
-        <span
-          className={`px-2 py-1 rounded text-sm ${
-            up ? "bg-green-600" : "bg-red-600"
-          }`}
-        >
-          {up ? "UP" : "DOWN"}
+
+        <span className={`status-pill ${isUp ? "status-up" : "status-down"}`}>
+          {isUp ? "UP" : "DOWN"}
         </span>
       </div>
 
-      <p className="text-gray-300">Uptime: {summary?.uptime_percent ?? "-"}%</p>
-      <p className="text-gray-300">
-        Avg latency: {summary?.avg_latency_ms ?? "-"} ms
-      </p>
+      <div className="service-metrics">
+        <div>
+          <p className="metric-label">Uptime</p>
+          <p className="metric-value">{stats?.uptime ?? 0}%</p>
+        </div>
 
-      {service?.consecutive_failures >= 3 && (
-        <div className="mt-2 text-sm text-red-400 font-semibold">
-          🚨 Possible outage detected
+        <div>
+          <p className="metric-label">Avg Latency</p>
+          <p className="metric-value">{stats?.avg_latency ?? 0} ms</p>
+        </div>
+      </div>
+
+      {service.consecutive_failures > 0 && (
+        <div className="failure-note">
+          Warning: {service.consecutive_failures} consecutive failures
         </div>
       )}
 
-      <div className="flex items-center gap-2 mt-3">
-        {onToggleAlerts && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleAlerts(service.id, !service.alert_enabled);
-            }}
-            className={`px-3 py-1 text-xs rounded ${
-              service.alert_enabled ? "bg-green-600" : "bg-gray-600"
-            }`}
-          >
-            {service.alert_enabled ? "Alerts ON" : "Alerts OFF"}
-          </button>
-        )}
+      <div className="service-actions">
+        <button
+          onClick={() => onToggleAlerts(service.id, !service.alert_enabled)}
+          className={`toggle-btn ${
+            service.alert_enabled ? "toggle-on" : "toggle-off"
+          }`}
+        >
+          {service.alert_enabled ? "Alerts ON" : "Alerts OFF"}
+        </button>
 
-        {onDelete && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(service.id);
-            }}
-            className="text-red-400 hover:text-red-600 text-sm"
-          >
-            Delete
-          </button>
-        )}
+        <button onClick={() => onDelete(service.id)} className="delete-btn">
+          Delete
+        </button>
       </div>
     </div>
   );

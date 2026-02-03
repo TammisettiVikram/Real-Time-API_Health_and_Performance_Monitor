@@ -1,103 +1,96 @@
 import { useEffect, useState } from "react";
-import { api } from "./api";
+import api from "./api";
+import "./App.css";
+
 import ServiceCard from "./components/ServiceCard";
+import StatsBar from "./components/statsBar";
 import AddServiceForm from "./components/AddServiceForm";
-import LatencyChart from "./components/LatencyChart";
 
-function App() {
+export default function App() {
   const [services, setServices] = useState([]);
-  const [summaries, setSummaries] = useState({});
-  const [selected, setSelected] = useState(null);
-  const [timeline, setTimeline] = useState([]);
-  const loadServices = () => {
-    api.get("/services").then((res) => {
-      setServices(Array.isArray(res.data) ? res.data : []);
+  const [stats, setStats] = useState({});
+
+  async function fetchServices() {
+    const res = await api.get("/services");
+    setServices(res.data);
+  }
+
+  async function fetchStats() {
+    const res = await api.get("/stats");
+    setStats(res.data);
+  }
+
+  async function addService(data) {
+    await api.post("/services", data);
+    fetchServices();
+  }
+
+  async function deleteService(id) {
+    await api.delete(`/services/${id}`);
+    fetchServices();
+  }
+
+  async function toggleAlerts(id, value) {
+    await api.patch(`/services/${id}/alerts`, {
+      alert_enabled: value,
     });
-  };
-
-  const deleteService = async (id) => {
-    if (!confirm("Delete this service?")) return;
-    try {
-      await api.delete(`/services/${id}`);
-      if (selected === id) setSelected(null);
-      loadServices();
-    } catch (err) {
-      console.error("Failed to delete service:", err);
-      alert(
-        "Delete failed. This usually means the API URL is unreachable or blocked by CORS."
-      );
-    }
-  };
-
-  const toggleAlerts = async (id, value) => {
-    try {
-      await api.patch(`/services/${id}/alerts`, {
-        alert_enabled: value,
-      });
-      loadServices();
-    } catch (err) {
-      console.error("Failed to toggle alerts:", err);
-      alert("Failed to update alert settings.");
-    }
-  };
+    fetchServices();
+  }
 
   useEffect(() => {
-    loadServices();
+    fetchServices();
+    fetchStats();
   }, []);
 
-  useEffect(() => {
-    setSummaries({});
-    services.forEach((s) => {
-      api
-        .get(`/stats/summary/${s.id}`)
-        .then((res) =>
-          setSummaries((prev) => ({ ...prev, [s.id]: res.data }))
-        )
-        .catch((err) => {
-          if (err?.response?.status === 404) {
-            console.warn("Service missing in stats DB:", s.id);
-            setServices((prev) => prev.filter((p) => p.id !== s.id));
-          } else {
-            console.error("Failed to load summary:", s.id, err);
-          }
-        });
-    });
-  }, [services]);
-
-  useEffect(() => {
-    if (!selected) return;
-    api.get(`/stats/timeline/${selected}?hours=6`).then((res) =>
-      setTimeline(res.data)
-    );
-  }, [selected]);
-
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">API Health Monitor</h1>
-
-      <AddServiceForm onAdded={loadServices} />
-
-      <div className="p-4 text-white bg-gray-800">
-        {services.map((s) => (
-          <ServiceCard
-            key={s.id}
-            service={s}
-            summary={summaries[s.id]}
-            onSelect={() => setSelected(s.id)}
-            onDelete={deleteService}
-            onToggleAlerts={toggleAlerts}
-          />
-        ))}
-      </div>
-
-      {selected && (
+    <div className="app-shell">
+      <header className="app-hero">
         <div>
-          <h2 className="text-xl font-semibold mt-6">Latency</h2>
-          <LatencyChart data={timeline} />
+          <p className="app-eyebrow">Real-Time Observability</p>
+          <h1 className="app-title">API Health Monitor</h1>
+          <p className="app-subtitle">
+            Track uptime, latency, and alert readiness with a single glance.
+          </p>
+        </div>
+        <div className="app-hero-badge">
+          <span className="dot" />
+          Live checks
+        </div>
+      </header>
+
+      <section className="section reveal">
+        <StatsBar
+          totalServices={services.length}
+          avgUptime={stats.avg_uptime ?? 0}
+          avgLatency={stats.avg_latency ?? 0}
+        />
+      </section>
+
+      <section className="section reveal">
+        <AddServiceForm onAdd={addService} />
+      </section>
+
+      {services.length === 0 && (
+        <div className="empty-state reveal">
+          <h3>No services yet</h3>
+          <p>
+            Add your first API endpoint to start collecting uptime and latency
+            data.
+          </p>
         </div>
       )}
+
+      <section className="cards-grid">
+        {services.map((service) => (
+          <ServiceCard
+            key={service.id}
+            service={service}
+            stats={stats.per_service?.[service.id]}
+            onToggleAlerts={toggleAlerts}
+            onDelete={deleteService}
+          />
+        ))}
+      </section>
     </div>
   );
 }
-
-export default App;
