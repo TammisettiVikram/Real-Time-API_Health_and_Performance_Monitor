@@ -211,15 +211,6 @@
         "documentation": {}
     },
     {
-        "label": "update_failures",
-        "kind": 2,
-        "importPath": "backend.app.routes.services",
-        "description": "backend.app.routes.services",
-        "peekOfCode": "def update_failures(service_id):\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 404\n    data = request.json\n    service.consecutive_failures = data.get(\n        \"consecutive_failures\", service.consecutive_failures\n    )\n    db.session.commit()\n    return {\"message\": \"Failure count updated\"}",
-        "detail": "backend.app.routes.services",
-        "documentation": {}
-    },
-    {
         "label": "toggle_alerts",
         "kind": 2,
         "importPath": "backend.app.routes.services",

@@ -85,21 +85,6 @@ def update_failures(service_id):
         "consecutive_failures": service.consecutive_failures,
     }
 
-@services_bp.route("/<int:service_id>/failures", methods=["PUT"])
-def update_failures(service_id):
-    service = MonitoredService.query.get(service_id)
-
-    if not service:
-        return {"error": "Service not found"}, 404
-
-    data = request.json
-    service.consecutive_failures = data.get(
-        "consecutive_failures", service.consecutive_failures
-    )
-
-    db.session.commit()
-    return {"message": "Failure count updated"}
-
 @services_bp.route("/<int:service_id>/alerts", methods=["PATCH"])
 def toggle_alerts(service_id):
     service = MonitoredService.query.get(service_id)
