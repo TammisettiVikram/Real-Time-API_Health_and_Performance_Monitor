@@ -3,8 +3,7 @@ import time
 import requests
 
 API_BASE = os.getenv("API_BASE_URL")
-
-TIMEOUT = 10  # seconds
+TIMEOUT = 10
 
 def check_service(service):
     url = service["url"]
@@ -20,8 +19,7 @@ def check_service(service):
             "response_time_ms": latency,
             "is_up": res.ok
         }
-
-    except requests.RequestException:
+    except Exception:
         return {
             "service_id": service["id"],
             "status_code": None,
@@ -29,27 +27,28 @@ def check_service(service):
             "is_up": False
         }
 
-
 def main():
     try:
-        services = requests.get(
-            f"{API_BASE}/services",
-            timeout=10
-        ).json()
+        services = requests.get(f"{API_BASE}/services", timeout=10).json()
     except Exception as e:
         print("Failed to fetch services:", e)
-        return
+        return  # exit cleanly
 
     for service in services:
+        if not service.get("is_active"):
+            continue
+
         try:
-            result = check_service(service)
-            requests.post(
+            payload = check_service(service)
+            r = requests.post(
                 f"{API_BASE}/logs",
-                json=result,
+                json=payload,
                 timeout=10
             )
+            print("POST /logs", r.status_code, payload)
         except Exception as e:
-            print(f"Failed logging service {service['id']}", e)
+            print("Failed to log service:", service["id"], e)
+
 
 if __name__ == "__main__":
     main()
