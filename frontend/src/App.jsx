@@ -46,10 +46,21 @@ function App() {
   }, []);
 
   useEffect(() => {
+    setSummaries({});
     services.forEach((s) => {
-      api.get(`/stats/summary/${s.id}`).then((res) =>
-        setSummaries((prev) => ({ ...prev, [s.id]: res.data }))
-      );
+      api
+        .get(`/stats/summary/${s.id}`)
+        .then((res) =>
+          setSummaries((prev) => ({ ...prev, [s.id]: res.data }))
+        )
+        .catch((err) => {
+          if (err?.response?.status === 404) {
+            console.warn("Service missing in stats DB:", s.id);
+            setServices((prev) => prev.filter((p) => p.id !== s.id));
+          } else {
+            console.error("Failed to load summary:", s.id, err);
+          }
+        });
     });
   }, [services]);
 
