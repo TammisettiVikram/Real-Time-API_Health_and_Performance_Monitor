@@ -2,6 +2,7 @@ from flask import Flask
 from .config import Config
 from .db import db
 from flask_cors import CORS
+from flask_migrate import Migrate
 from .routes.stats import stats_bp
 
 def create_app():
@@ -10,6 +11,7 @@ def create_app():
 
     CORS(app)
     db.init_app(app)
+    Migrate(app, db)
 
     # 👇 THIS IS THE KEY LINE
     from . import models
