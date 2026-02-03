@@ -2,6 +2,7 @@ from flask import Flask
 from .config import Config
 from .db import db
 from flask_cors import CORS
+from .routes.stats import stats_bp
 
 def create_app():
     app = Flask(__name__)
@@ -21,5 +22,6 @@ def create_app():
 
     app.register_blueprint(services_bp, url_prefix="/services")
     app.register_blueprint(logs_bp, url_prefix="/logs")
-
+    app.register_blueprint(stats_bp, url_prefix="/stats")
+    
     return app

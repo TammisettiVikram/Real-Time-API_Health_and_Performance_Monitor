@@ -48,6 +48,54 @@
         "documentation": {}
     },
     {
+        "label": "Blueprint",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "request",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "jsonify",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "os",
         "kind": 6,
         "isExtraImport": true,
@@ -133,6 +181,60 @@
         "description": "backend.app.routes.services",
         "peekOfCode": "services_bp = Blueprint(\"services\", __name__)\n@services_bp.route(\"\", methods=[\"GET\"])\ndef list_services():\n    services = MonitoredService.query.all()\n    return jsonify([\n        {\n            \"id\": s.id,\n            \"name\": s.name,\n            \"url\": s.url,\n            \"is_active\": s.is_active",
         "detail": "backend.app.routes.services",
+        "documentation": {}
+    },
+    {
+        "label": "hours_ago",
+        "kind": 2,
+        "importPath": "backend.app.routes.stats",
+        "description": "backend.app.routes.stats",
+        "peekOfCode": "def hours_ago(hours: int):\n    return datetime.utcnow() - timedelta(hours=hours)\n@stats_bp.route(\"/summary/<int:service_id>\")\ndef service_summary(service_id):\n    hours = int(request.args.get(\"hours\", 24))\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 404\n    since = hours_ago(hours)\n    total = db.session.query(func.count()).filter(",
+        "detail": "backend.app.routes.stats",
+        "documentation": {}
+    },
+    {
+        "label": "service_summary",
+        "kind": 2,
+        "importPath": "backend.app.routes.stats",
+        "description": "backend.app.routes.stats",
+        "peekOfCode": "def service_summary(service_id):\n    hours = int(request.args.get(\"hours\", 24))\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 404\n    since = hours_ago(hours)\n    total = db.session.query(func.count()).filter(\n        HealthLog.service_id == service_id,\n        HealthLog.checked_at >= since\n    ).scalar()",
+        "detail": "backend.app.routes.stats",
+        "documentation": {}
+    },
+    {
+        "label": "latency_stats",
+        "kind": 2,
+        "importPath": "backend.app.routes.stats",
+        "description": "backend.app.routes.stats",
+        "peekOfCode": "def latency_stats(service_id):\n    hours = int(request.args.get(\"hours\", 24))\n    since = hours_ago(hours)\n    avg_, min_, max_ = db.session.query(\n        func.avg(HealthLog.response_time_ms),\n        func.min(HealthLog.response_time_ms),\n        func.max(HealthLog.response_time_ms),\n    ).filter(\n        HealthLog.service_id == service_id,\n        HealthLog.is_up == True,",
+        "detail": "backend.app.routes.stats",
+        "documentation": {}
+    },
+    {
+        "label": "uptime",
+        "kind": 2,
+        "importPath": "backend.app.routes.stats",
+        "description": "backend.app.routes.stats",
+        "peekOfCode": "def uptime(service_id):\n    hours = int(request.args.get(\"hours\", 24))\n    since = hours_ago(hours)\n    total = db.session.query(func.count()).filter(\n        HealthLog.service_id == service_id,\n        HealthLog.checked_at >= since\n    ).scalar()\n    up = db.session.query(func.count()).filter(\n        HealthLog.service_id == service_id,\n        HealthLog.is_up == True,",
+        "detail": "backend.app.routes.stats",
+        "documentation": {}
+    },
+    {
+        "label": "timeline",
+        "kind": 2,
+        "importPath": "backend.app.routes.stats",
+        "description": "backend.app.routes.stats",
+        "peekOfCode": "def timeline(service_id):\n    hours = int(request.args.get(\"hours\", 6))\n    since = hours_ago(hours)\n    logs = HealthLog.query.filter(\n        HealthLog.service_id == service_id,\n        HealthLog.checked_at >= since\n    ).order_by(HealthLog.checked_at.asc()).all()\n    return jsonify([\n        {\n            \"time\": log.checked_at.isoformat(),",
+        "detail": "backend.app.routes.stats",
+        "documentation": {}
+    },
+    {
+        "label": "stats_bp",
+        "kind": 5,
+        "importPath": "backend.app.routes.stats",
+        "description": "backend.app.routes.stats",
+        "peekOfCode": "stats_bp = Blueprint(\"stats\", __name__)\ndef hours_ago(hours: int):\n    return datetime.utcnow() - timedelta(hours=hours)\n@stats_bp.route(\"/summary/<int:service_id>\")\ndef service_summary(service_id):\n    hours = int(request.args.get(\"hours\", 24))\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 404\n    since = hours_ago(hours)",
+        "detail": "backend.app.routes.stats",
         "documentation": {}
     },
     {
