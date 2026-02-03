@@ -140,7 +140,7 @@
         "kind": 6,
         "importPath": "backend.app.config",
         "description": "backend.app.config",
-        "peekOfCode": "class Config:\n    SQLALCHEMY_DATABASE_URI = os.getenv(\"DATABASE_URL\")\n    SQLALCHEMY_TRACK_MODIFICATIONS = False",
+        "peekOfCode": "class Config:\n    SQLALCHEMY_DATABASE_URI = os.getenv(\"DATABASE_URL\")\n    SQLALCHEMY_TRACK_MODIFICATIONS = False\n    SQLALCHEMY_ENGINE_OPTIONS = {\n        \"pool_pre_ping\": True,\n        \"pool_recycle\": 300,\n    }",
         "detail": "backend.app.config",
         "documentation": {}
     },

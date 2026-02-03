@@ -9,6 +9,9 @@ def create_app():
 
     CORS(app)
     db.init_app(app)
+    
+    with app.app_context():
+        db.create_all()  # <-- fixed indentation
 
     from .routes.services import services_bp
     from .routes.logs import logs_bp
