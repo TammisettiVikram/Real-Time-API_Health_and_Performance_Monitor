@@ -26,4 +26,4 @@ jobs:
         env:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
         run: |
-          python monitor.py
+          python monitoring/monitor.py
