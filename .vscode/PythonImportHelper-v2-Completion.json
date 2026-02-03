@@ -95,7 +95,7 @@
         "kind": 2,
         "importPath": "backend.app.routes.logs",
         "description": "backend.app.routes.logs",
-        "peekOfCode": "def create_log():\n    data = request.json\n    log = HealthLog(\n        service_id=data[\"service_id\"],\n        status_code=data.get(\"status_code\"),\n        response_time_ms=data.get(\"response_time_ms\"),\n        is_up=data[\"is_up\"]\n    )\n    db.session.add(log)\n    db.session.commit()",
+        "peekOfCode": "def create_log():\n    data = request.get_json(silent=True) or {}\n    service_id = data.get(\"service_id\")\n    if not service_id:\n        return {\"error\": \"service_id is required\"}, 400\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 400\n    log = HealthLog(\n        service_id=service_id,",
         "detail": "backend.app.routes.logs",
         "documentation": {}
     },
@@ -104,7 +104,7 @@
         "kind": 5,
         "importPath": "backend.app.routes.logs",
         "description": "backend.app.routes.logs",
-        "peekOfCode": "logs_bp = Blueprint('logs_bp', __name__)\n@logs_bp.route(\"\", methods=[\"POST\"])\ndef create_log():\n    data = request.json\n    log = HealthLog(\n        service_id=data[\"service_id\"],\n        status_code=data.get(\"status_code\"),\n        response_time_ms=data.get(\"response_time_ms\"),\n        is_up=data[\"is_up\"]\n    )",
+        "peekOfCode": "logs_bp = Blueprint(\"logs\", __name__)\n@logs_bp.route(\"\", methods=[\"POST\"])\ndef create_log():\n    data = request.get_json(silent=True) or {}\n    service_id = data.get(\"service_id\")\n    if not service_id:\n        return {\"error\": \"service_id is required\"}, 400\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 400",
         "detail": "backend.app.routes.logs",
         "documentation": {}
     },
