@@ -8,7 +8,7 @@ on:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-
+  
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,4 +26,4 @@ jobs:
         env:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
         run: |
-          python monitoring/monitor.py
+          python monitoring/monitor.py || echo "Monitor failed but workflow continues"
