@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify
-from flask import Blueprint, jsonify
 from ..db import db
 from ..models import HealthLog
 logs_bp = Blueprint('logs_bp', __name__)
