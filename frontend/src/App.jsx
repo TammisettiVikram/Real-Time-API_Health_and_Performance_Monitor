@@ -29,6 +29,18 @@ function App() {
     }
   };
 
+  const toggleAlerts = async (id, value) => {
+    try {
+      await api.patch(`/services/${id}/alerts`, {
+        alert_enabled: value,
+      });
+      loadServices();
+    } catch (err) {
+      console.error("Failed to toggle alerts:", err);
+      alert("Failed to update alert settings.");
+    }
+  };
+
   useEffect(() => {
     loadServices();
   }, []);
@@ -62,6 +74,7 @@ function App() {
             summary={summaries[s.id]}
             onSelect={() => setSelected(s.id)}
             onDelete={deleteService}
+            onToggleAlerts={toggleAlerts}
           />
         ))}
       </div>

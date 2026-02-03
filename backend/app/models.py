@@ -7,6 +7,8 @@ class MonitoredService(db.Model):
     name = db.Column(db.Text, nullable=False)
     url = db.Column(db.Text, nullable=False, unique=True)
     is_active = db.Column(db.Boolean, default=True)
+    consecutive_failures = db.Column(db.Integer, default=0)
+    alert_enabled = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 

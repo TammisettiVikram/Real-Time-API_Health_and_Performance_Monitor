@@ -170,7 +170,7 @@
         "kind": 2,
         "importPath": "backend.app.routes.services",
         "description": "backend.app.routes.services",
-        "peekOfCode": "def list_services():\n    services = MonitoredService.query.all()\n    return jsonify([\n        {\n            \"id\": s.id,\n            \"name\": s.name,\n            \"url\": s.url,\n            \"is_active\": s.is_active\n        } for s in services\n    ])",
+        "peekOfCode": "def list_services():\n    services = MonitoredService.query.all()\n    return jsonify([\n        {\n            \"id\": s.id,\n            \"name\": s.name,\n            \"url\": s.url,\n            \"is_active\": s.is_active,\n            \"consecutive_failures\": s.consecutive_failures or 0,\n            \"alert_enabled\": bool(s.alert_enabled)",
         "detail": "backend.app.routes.services",
         "documentation": {}
     },
@@ -188,7 +188,43 @@
         "kind": 2,
         "importPath": "backend.app.routes.services",
         "description": "backend.app.routes.services",
-        "peekOfCode": "def delete_service(service_id):\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 404\n    # delete related logs first\n    HealthLog.query.filter_by(service_id=service_id).delete()\n    db.session.delete(service)\n    db.session.commit()\n    return {\"message\": \"Service deleted\"}",
+        "peekOfCode": "def delete_service(service_id):\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 404\n    # delete related logs first\n    HealthLog.query.filter_by(service_id=service_id).delete()\n    db.session.delete(service)\n    db.session.commit()\n    return {\"message\": \"Service deleted\"}\n@services_bp.route(\"/<int:service_id>/alerts\", methods=[\"PATCH\"])",
+        "detail": "backend.app.routes.services",
+        "documentation": {}
+    },
+    {
+        "label": "update_alerts",
+        "kind": 2,
+        "importPath": "backend.app.routes.services",
+        "description": "backend.app.routes.services",
+        "peekOfCode": "def update_alerts(service_id):\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 404\n    data = request.get_json(silent=True) or {}\n    if \"alert_enabled\" not in data:\n        return {\"error\": \"alert_enabled is required\"}, 400\n    service.alert_enabled = bool(data[\"alert_enabled\"])\n    db.session.commit()\n    return {\"message\": \"Alert setting updated\", \"alert_enabled\": service.alert_enabled}",
+        "detail": "backend.app.routes.services",
+        "documentation": {}
+    },
+    {
+        "label": "update_failures",
+        "kind": 2,
+        "importPath": "backend.app.routes.services",
+        "description": "backend.app.routes.services",
+        "peekOfCode": "def update_failures(service_id):\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 404\n    data = request.get_json(silent=True) or {}\n    if \"consecutive_failures\" not in data:\n        return {\"error\": \"consecutive_failures is required\"}, 400\n    try:\n        failures = int(data[\"consecutive_failures\"])\n    except (TypeError, ValueError):",
+        "detail": "backend.app.routes.services",
+        "documentation": {}
+    },
+    {
+        "label": "update_failures",
+        "kind": 2,
+        "importPath": "backend.app.routes.services",
+        "description": "backend.app.routes.services",
+        "peekOfCode": "def update_failures(service_id):\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 404\n    data = request.json\n    service.consecutive_failures = data.get(\n        \"consecutive_failures\", service.consecutive_failures\n    )\n    db.session.commit()\n    return {\"message\": \"Failure count updated\"}",
+        "detail": "backend.app.routes.services",
+        "documentation": {}
+    },
+    {
+        "label": "toggle_alerts",
+        "kind": 2,
+        "importPath": "backend.app.routes.services",
+        "description": "backend.app.routes.services",
+        "peekOfCode": "def toggle_alerts(service_id):\n    service = MonitoredService.query.get(service_id)\n    if not service:\n        return {\"error\": \"Service not found\"}, 404\n    data = request.json\n    service.alert_enabled = data.get(\"alert_enabled\", service.alert_enabled)\n    db.session.commit()\n    return {\"message\": \"Alert preference updated\"}",
         "detail": "backend.app.routes.services",
         "documentation": {}
     },
@@ -197,7 +233,7 @@
         "kind": 5,
         "importPath": "backend.app.routes.services",
         "description": "backend.app.routes.services",
-        "peekOfCode": "services_bp = Blueprint(\"services\", __name__)\n@services_bp.route(\"\", methods=[\"GET\"])\ndef list_services():\n    services = MonitoredService.query.all()\n    return jsonify([\n        {\n            \"id\": s.id,\n            \"name\": s.name,\n            \"url\": s.url,\n            \"is_active\": s.is_active",
+        "peekOfCode": "services_bp = Blueprint(\"services\", __name__)\n@services_bp.route(\"\", methods=[\"GET\"])\ndef list_services():\n    services = MonitoredService.query.all()\n    return jsonify([\n        {\n            \"id\": s.id,\n            \"name\": s.name,\n            \"url\": s.url,\n            \"is_active\": s.is_active,",
         "detail": "backend.app.routes.services",
         "documentation": {}
     },
@@ -278,7 +314,7 @@
         "kind": 6,
         "importPath": "backend.app.models",
         "description": "backend.app.models",
-        "peekOfCode": "class MonitoredService(db.Model):\n    __tablename__ = \"monitored_services\"\n    id = db.Column(db.Integer, primary_key=True)\n    name = db.Column(db.Text, nullable=False)\n    url = db.Column(db.Text, nullable=False, unique=True)\n    is_active = db.Column(db.Boolean, default=True)\n    created_at = db.Column(db.DateTime, server_default=db.func.now())\nclass HealthLog(db.Model):\n    __tablename__ = \"health_logs\"\n    id = db.Column(db.BigInteger, primary_key=True)",
+        "peekOfCode": "class MonitoredService(db.Model):\n    __tablename__ = \"monitored_services\"\n    id = db.Column(db.Integer, primary_key=True)\n    name = db.Column(db.Text, nullable=False)\n    url = db.Column(db.Text, nullable=False, unique=True)\n    is_active = db.Column(db.Boolean, default=True)\n    consecutive_failures = db.Column(db.Integer, default=0)\n    alert_enabled = db.Column(db.Boolean, default=True)\n    created_at = db.Column(db.DateTime, server_default=db.func.now())\nclass HealthLog(db.Model):",
         "detail": "backend.app.models",
         "documentation": {}
     },
@@ -359,7 +395,7 @@
         "kind": 5,
         "importPath": "monitor",
         "description": "monitor",
-        "peekOfCode": "API_BASE = os.getenv(\"API_BASE_URL\")\nTIMEOUT = 10\ndef check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {\n            \"service_id\": service[\"id\"],",
+        "peekOfCode": "API_BASE = os.getenv(\"API_BASE_URL\")\nTIMEOUT = 10\nFAILURE_THRESHOLD = 3\ndef check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {",
         "detail": "monitor",
         "documentation": {}
     },
@@ -368,7 +404,16 @@
         "kind": 5,
         "importPath": "monitor",
         "description": "monitor",
-        "peekOfCode": "TIMEOUT = 10\ndef check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {\n            \"service_id\": service[\"id\"],\n            \"status_code\": res.status_code,",
+        "peekOfCode": "TIMEOUT = 10\nFAILURE_THRESHOLD = 3\ndef check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {\n            \"service_id\": service[\"id\"],",
+        "detail": "monitor",
+        "documentation": {}
+    },
+    {
+        "label": "FAILURE_THRESHOLD",
+        "kind": 5,
+        "importPath": "monitor",
+        "description": "monitor",
+        "peekOfCode": "FAILURE_THRESHOLD = 3\ndef check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {\n            \"service_id\": service[\"id\"],\n            \"status_code\": res.status_code,",
         "detail": "monitor",
         "documentation": {}
     }

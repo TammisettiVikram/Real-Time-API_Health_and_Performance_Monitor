@@ -1,4 +1,10 @@
-export default function ServiceCard({ service, summary, onSelect, onDelete }) {
+export default function ServiceCard({
+  service,
+  summary,
+  onSelect,
+  onDelete,
+  onToggleAlerts,
+}) {
   const up = summary?.uptime_percent === 100;
 
   return (
@@ -27,17 +33,39 @@ export default function ServiceCard({ service, summary, onSelect, onDelete }) {
         Avg latency: {summary?.avg_latency_ms ?? "-"} ms
       </p>
 
-      {onDelete && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(service.id);
-          }}
-          className="text-red-400 hover:text-red-600 text-sm mt-3"
-        >
-          Delete
-        </button>
+      {service?.consecutive_failures >= 3 && (
+        <div className="mt-2 text-sm text-red-400 font-semibold">
+          🚨 Possible outage detected
+        </div>
       )}
+
+      <div className="flex items-center gap-2 mt-3">
+        {onToggleAlerts && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleAlerts(service.id, !service.alert_enabled);
+            }}
+            className={`px-3 py-1 text-xs rounded ${
+              service.alert_enabled ? "bg-green-600" : "bg-gray-600"
+            }`}
+          >
+            {service.alert_enabled ? "Alerts ON" : "Alerts OFF"}
+          </button>
+        )}
+
+        {onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(service.id);
+            }}
+            className="text-red-400 hover:text-red-600 text-sm"
+          >
+            Delete
+          </button>
+        )}
+      </div>
     </div>
   );
 }
