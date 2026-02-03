@@ -26,4 +26,5 @@ jobs:
         env:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
         run: |
+          ls -la
           python monitor.py || echo "Monitor failed but workflow continues"
