@@ -183,37 +183,37 @@
     {
         "label": "check_service",
         "kind": 2,
-        "importPath": "monitoring.monitor",
-        "description": "monitoring.monitor",
+        "importPath": "monitor",
+        "description": "monitor",
         "peekOfCode": "def check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {\n            \"service_id\": service[\"id\"],\n            \"status_code\": res.status_code,\n            \"response_time_ms\": latency,",
-        "detail": "monitoring.monitor",
+        "detail": "monitor",
         "documentation": {}
     },
     {
         "label": "main",
         "kind": 2,
-        "importPath": "monitoring.monitor",
-        "description": "monitoring.monitor",
+        "importPath": "monitor",
+        "description": "monitor",
         "peekOfCode": "def main():\n    try:\n        services = requests.get(f\"{API_BASE}/services\", timeout=10).json()\n    except Exception as e:\n        print(\"Failed to fetch services:\", e)\n        return  # exit cleanly\n    for service in services:\n        if not service.get(\"is_active\"):\n            continue\n        try:",
-        "detail": "monitoring.monitor",
+        "detail": "monitor",
         "documentation": {}
     },
     {
         "label": "API_BASE",
         "kind": 5,
-        "importPath": "monitoring.monitor",
-        "description": "monitoring.monitor",
+        "importPath": "monitor",
+        "description": "monitor",
         "peekOfCode": "API_BASE = os.getenv(\"API_BASE_URL\")\nTIMEOUT = 10\ndef check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {\n            \"service_id\": service[\"id\"],",
-        "detail": "monitoring.monitor",
+        "detail": "monitor",
         "documentation": {}
     },
     {
         "label": "TIMEOUT",
         "kind": 5,
-        "importPath": "monitoring.monitor",
-        "description": "monitoring.monitor",
+        "importPath": "monitor",
+        "description": "monitor",
         "peekOfCode": "TIMEOUT = 10\ndef check_service(service):\n    url = service[\"url\"]\n    start = time.time()\n    try:\n        res = requests.get(url, timeout=TIMEOUT)\n        latency = int((time.time() - start) * 1000)\n        return {\n            \"service_id\": service[\"id\"],\n            \"status_code\": res.status_code,",
-        "detail": "monitoring.monitor",
+        "detail": "monitor",
         "documentation": {}
     }
 ]
