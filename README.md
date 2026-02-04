@@ -1,6 +1,8 @@
-# 🚀 Real-Time API Health & Performance Monitor
+# 🚀 SentinelCore - A Backend Reliability & Observability Engine
 
-A full-stack monitoring system that tracks **uptime, latency, and failure streaks** of APIs and websites in real time.  
+- Designed as a lightweight observability engine for small services and personal projects, inspired by production monitoring systems.
+
+- A full-stack monitoring system that tracks **uptime, latency, and and alert readiness (via failure-streak detection)** of APIs and websites in real time.  
 Built to demonstrate **backend systems thinking**, **cold-start awareness**, and **production-style monitoring logic**.
 
 ---
@@ -138,6 +140,17 @@ This mimics real production monitoring systems.
    - streak ≥ threshold
    - alerts are enabled for that service
 
+
+GitHub Actions (cron) – scheduling & execution
+↓
+Monitoring Script – health checks & metrics collection
+↓
+Flask API – persistence & analytics
+↓
+PostgreSQL – historical state
+↓
+React Dashboard – visualization & control
+
 ---
 
 ## ▶️ Running Locally
@@ -154,7 +167,6 @@ cd frontend
 npm install
 npm run dev
 ```
-
 ---
 
 # 🌍 Deployed URLs
@@ -164,6 +176,15 @@ https://real-time-apihealthandperformancemonitor-production.up.railway.app
 
 Frontend Dashboard:
 https://real-time-api-health-and-performanc.vercel.app
+
+---
+
+## 🧠 Key Design Decisions
+
+- Polling over push: simplifies deployment and avoids agent installs
+- Failure streaks over single failures: reduces false positives
+- GitHub Actions over long-running workers: zero-cost scheduling
+- Minimal UI charts: favors clarity over visual noise
 
 ---
 
@@ -180,4 +201,4 @@ https://real-time-api-health-and-performanc.vercel.app
 # 👨‍💻 Author
 
 Built by Vikram
-Focused on backend systems, monitoring, and scalable architectures.
+Backend-focused engineer interested in reliability, observability, and system design.

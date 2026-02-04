@@ -9,6 +9,40 @@ import AddServiceForm from "./components/AddServiceForm";
 export default function App() {
   const [services, setServices] = useState([]);
   const [stats, setStats] = useState({});
+  const LATENCY_WARN_MS = 800;
+  const FAILURE_DEGRADED = 3;
+  const FAILURE_DOWN = 5;
+  const TIMELINE_HOURS = 24;
+  const TIMELINE_LIMIT = 10;
+
+  function computeServiceState(consecutiveFailures, avgLatency) {
+    if (consecutiveFailures >= FAILURE_DOWN) {
+      return { label: "Down", tone: "down" };
+    }
+    if (consecutiveFailures >= FAILURE_DEGRADED) {
+      return { label: "Degraded", tone: "warn" };
+    }
+    if (typeof avgLatency === "number" && avgLatency > LATENCY_WARN_MS) {
+      return { label: "Degraded", tone: "warn" };
+    }
+    return { label: "Healthy", tone: "healthy" };
+  }
+
+  function computeLastRecovery(timeline) {
+    if (!Array.isArray(timeline) || timeline.length < 2) {
+      return null;
+    }
+
+    for (let i = timeline.length - 1; i > 0; i -= 1) {
+      const current = timeline[i];
+      const previous = timeline[i - 1];
+      if (current?.is_up && previous && !previous.is_up) {
+        return current.time;
+      }
+    }
+
+    return null;
+  }
 
   async function fetchServices() {
     const res = await api.get("/services");
@@ -48,10 +82,17 @@ export default function App() {
       try {
         const results = await Promise.all(
           services.map((service) =>
-            api
-              .get(`/stats/summary/${service.id}`)
-              .then((res) => ({ id: service.id, data: res.data }))
-              .catch((error) => ({ id: service.id, error }))
+            Promise.all([
+              api.get(`/stats/summary/${service.id}`),
+              api.get(`/stats/timeline/${service.id}?hours=${TIMELINE_HOURS}`),
+            ])
+              .then(([summaryRes, timelineRes]) => ({
+                id: service.id,
+                service,
+                summary: summaryRes.data,
+                timeline: timelineRes.data,
+              }))
+              .catch((error) => ({ id: service.id, service, error }))
           )
         );
 
@@ -64,15 +105,24 @@ export default function App() {
         let latencyCount = 0;
 
         results.forEach((result) => {
-          if (!result.data) return;
+          if (!result.summary) return;
 
-          const uptime = result.data.uptime_percent;
-          const avgLatency = result.data.avg_latency_ms;
+          const uptime = result.summary.uptime_percent;
+          const avgLatency = result.summary.avg_latency_ms;
+          const timeline = Array.isArray(result.timeline) ? result.timeline : [];
+          const lastChecks = timeline.slice(-TIMELINE_LIMIT);
+          const lastRecovery = computeLastRecovery(timeline);
+          const consecutiveFailures = result.service?.consecutive_failures ?? 0;
+          const state = computeServiceState(consecutiveFailures, avgLatency);
 
           per_service[result.id] = {
             uptime,
             avg_latency: avgLatency,
             is_up: typeof uptime === "number" ? uptime >= 99 : true,
+            last_checks: lastChecks,
+            last_recovery: lastRecovery,
+            state,
+            latency_threshold: LATENCY_WARN_MS,
           };
 
           if (typeof uptime === "number") {
@@ -111,8 +161,8 @@ export default function App() {
     <div className="app-shell">
       <header className="app-hero">
         <div>
-          <p className="app-eyebrow">Real-Time Observability</p>
-          <h1 className="app-title">API Health Monitor</h1>
+          <p className="app-eyebrow">A Backend Reliability & Observability Engine</p>
+          <h1 className="app-title">SentinelCore</h1>
           <p className="app-subtitle">
             Track uptime, latency, and alert readiness with a single glance.
           </p>
